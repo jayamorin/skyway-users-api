@@ -14,18 +14,15 @@ services:
   users-api:
     build:
       context: .
-      target: develop
     command: >
-      sh -c 'flake8 -v --show-source app ; 
-        python app/manage.py migrate &&
-        python app/manage.py runserver 0.0.0.0:7001'
+      sh -c 'python app/manage.py makemigrations --no-input &&
+        python app/manage.py migrate --no-input &&
+        python app/manage.py collectstatic &&
+        cd app &&
+        gunicorn main.wsgi:application --bind 0.0.0.0:7001'
     restart: always
     ports:
     - 7001:7001
-    volumes:
-    - ./src:/srv/app
-    - ./Pipfile:/srv/Pipfile
-    - ./Pipfile.lock:/srv/Pipfile.lock
     environment:
       SECRET_KEY: 'y-mxg_e8!jvef4t#mg*_7h(&3y$czfa9^dh$2q2#6pth-2(+-3'
       DEBUG: True
